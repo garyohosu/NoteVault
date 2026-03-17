@@ -3,300 +3,300 @@ Version: 1.0
 Status: Draft
 Project: NoteVault
 
-## 1. Overview
+## 1. 概要
 
-NoteVault is a local-first utility for bulk exporting Apple Notes from an iPhone to a PC or external USB storage without using iCloud.
-The primary goal is to help users preserve privacy while creating offline backups of large note collections, including text content and, where feasible, attachments such as images.
+NoteVaultは、iCloudを使わずにiPhoneのApple NotesをPCまたは外付けUSBストレージへ一括エクスポートするローカルファーストのユーティリティです。
+主な目的は、大量のノートコレクションのオフラインバックアップを作成しながら、テキスト内容や（可能な場合は）添付ファイルなどを含めてユーザーのプライバシーを守ることです。
 
-This project is intended as a practical rescue and backup tool for users who already have a large number of Apple Notes and need an offline migration/export workflow.
-
----
-
-## 2. Problem Statement
-
-Apple Notes on iPhone are convenient for daily note taking, but bulk export and offline migration are weak in the standard user flow.
-Users with thousands of notes may face the following issues:
-
-- Notes are difficult to export in bulk
-- Manual one-by-one export takes too much time
-- Users may not want to use iCloud for privacy reasons
-- Users want local backup to PC or external USB storage
-- Long-term preservation and readability are important
-- Attachments should be preserved when possible
-
-The system should provide an offline, privacy-preserving, batch-oriented export workflow.
+このプロジェクトは、すでに大量のApple Notesを持つユーザーがオフラインでの移行・エクスポートワークフローを必要としている場合のための実用的な救出・バックアップツールを目指しています。
 
 ---
 
-## 3. Goals
+## 2. 問題の背景
 
-### 3.1 Primary Goals
+iPhoneのApple Notesは日常のメモ取りに便利ですが、標準のユーザーフローでは一括エクスポートやオフライン移行が弱点です。
+数千件のノートを持つユーザーは以下のような課題に直面する可能性があります：
 
-- Export 10,000+ Apple Notes in bulk
-- Work without requiring iCloud
-- Work offline after local data preparation is complete
-- Save output to PC local storage or external USB
-- Preserve note text reliably
-- Avoid modifying the original iPhone data
+- ノートの一括エクスポートが難しい
+- 1件ずつ手動でエクスポートすると時間がかかりすぎる
+- プライバシー上の理由でiCloudを使いたくないユーザーがいる
+- PCや外付けUSBへのローカルバックアップが必要
+- 長期保存と可読性が重要
+- 可能な限り添付ファイルも保存したい
 
-### 3.2 Secondary Goals
-
-- Preserve folder structure where possible
-- Preserve metadata such as title, created time, updated time
-- Export attachments such as images where possible
-- Support resumable export for large datasets
-- Generate logs and reports for failed items
+本システムは、オフラインでプライバシーに配慮したバッチ指向のエクスポートワークフローを提供します。
 
 ---
 
-## 4. Non-Goals
+## 3. ゴール
 
-The following are explicitly out of scope for the first release:
+### 3.1 主要ゴール
 
-- Real-time two-way sync with Apple Notes
-- Editing notes and writing them back into Apple Notes
-- Full-fidelity rendering identical to Apple Notes UI
-- Shared-note collaboration workflows
-- Cloud sync services
-- Online account integration beyond what is required for local backup preparation
+- Apple Notes を 10,000 件以上一括エクスポートする
+- iCloud 不要で動作する
+- ローカルデータの準備完了後はオフラインで動作する
+- PCのローカルストレージまたは外付けUSBに出力を保存する
+- ノートのテキストを確実に保存する
+- 元のiPhoneデータを変更しない
 
----
+### 3.2 副次ゴール
 
-## 5. Target Users
-
-### 5.1 Primary Users
-
-- Individuals with large Apple Notes collections on iPhone
-- Privacy-conscious users who do not want to rely on iCloud
-- Users who want a readable local archive
-- Users who want a backup before device replacement or cleanup
-
-### 5.2 Secondary Users
-
-- Power users managing long-term personal archives
-- Users who need export for migration or disaster recovery
-- Users who want structured Markdown or text output for later processing
+- 可能な限りフォルダ構造を保持する
+- タイトル・作成日時・更新日時などのメタデータを保持する
+- 可能な限り画像などの添付ファイルをエクスポートする
+- 大規模データセットに対する再開可能なエクスポートをサポートする
+- 失敗項目のログとレポートを生成する
 
 ---
 
-## 6. Product Scope
+## 4. スコープ外
 
-The recommended first implementation is a desktop tool that operates on locally available iPhone backup data.
-The system should focus on extraction, transformation, and offline export rather than direct in-device note manipulation.
+初回リリースでは以下を明示的にスコープ外とします：
 
-Recommended scope:
-
-- Detect local iPhone backup on PC
-- Parse note data from local backup
-- Extract note content and metadata
-- Export notes in text-based formats
-- Save output to local folder or USB storage
-- Optionally extract attachments when technically feasible
+- Apple Notesとのリアルタイム双方向同期
+- ノートの編集とApple Notesへの書き戻し
+- Apple Notes UIと同一の完全なレンダリング再現
+- ノート共有コラボレーションのワークフロー
+- クラウド同期サービス
+- ローカルバックアップ準備に必要な範囲を超えたオンラインアカウント連携
 
 ---
 
-## 7. Recommended Architecture
+## 5. 対象ユーザー
 
-### 7.1 High-Level Approach
+### 5.1 主要ユーザー
 
-Preferred implementation approach:
+- iPhoneに大量のApple Notesコレクションを持つ個人
+- iCloudを使いたくないプライバシー意識の高いユーザー
+- 可読なローカルアーカイブを必要とするユーザー
+- デバイス交換やデータ整理の前にバックアップを取りたいユーザー
 
-1. User connects iPhone to PC
-2. User creates local backup on PC without using iCloud
-3. NoteVault detects and reads the local backup
-4. NoteVault parses Apple Notes data structures
-5. NoteVault exports notes into readable files
-6. NoteVault generates result logs and reports
+### 5.2 副次ユーザー
 
-### 7.2 Major Components
-
-- Backup Discovery Module
-- Backup Access Layer
-- Notes Parser
-- Metadata Extractor
-- Attachment Extractor
-- Export Engine
-- Logging and Report Module
-- UI Layer (CLI or GUI)
+- 長期的な個人アーカイブを管理するパワーユーザー
+- 移行や災害復旧のためのエクスポートを必要とするユーザー
+- 後続処理のために構造化されたMarkdownやテキスト出力を必要とするユーザー
 
 ---
 
-## 8. Functional Requirements
+## 6. プロダクトスコープ
 
-## F-001 Backup Detection
-The system shall detect one or more local iPhone backup datasets on the host computer.
+推奨する初回実装は、ローカルに保存されたiPhoneバックアップデータを操作するデスクトップツールです。
+デバイスへの直接操作ではなく、抽出・変換・オフラインエクスポートに焦点を当てます。
 
-### Acceptance Criteria
-- The tool can list available local backups
-- If multiple backups exist, the user can choose one
-- The selected backup is validated before processing
+推奨スコープ：
 
-## F-002 Note Inventory
-The system shall read and enumerate notes from the selected backup.
+- PC上のローカルiPhoneバックアップを検出する
+- ローカルバックアップからノートデータを解析する
+- ノートのコンテンツとメタデータを抽出する
+- テキストベース形式でノートをエクスポートする
+- ローカルフォルダまたはUSBストレージに出力を保存する
+- 技術的に可能な場合、添付ファイルをオプションで抽出する
 
-### Acceptance Criteria
-- The tool shows total note count
-- The tool can identify title or fallback label for untitled notes
-- The tool can read created and updated timestamps when available
-- The tool can identify folder or collection membership when available
+---
 
-## F-003 Scope Selection
-The system shall allow the user to choose export scope.
+## 7. 推奨アーキテクチャ
 
-### Acceptance Criteria
-- Export all notes
-- Export by folder
-- Export by date range
-- Export by keyword match when technically feasible
+### 7.1 ハイレベルアプローチ
 
-## F-004 Bulk Export
-The system shall export notes in batch mode.
+推奨する実装アプローチ：
 
-### Acceptance Criteria
-- The tool can process 10,000+ notes in one execution flow
-- The tool supports chunked or iterative processing
-- The tool does not require per-note manual confirmation
+1. ユーザーがiPhoneをPCに接続する
+2. ユーザーがiCloudを使わずにPCにローカルバックアップを作成する
+3. NoteVaultがローカルバックアップを検出して読み込む
+4. NoteVaultがApple Notesのデータ構造を解析する
+5. NoteVaultがノートを可読なファイルにエクスポートする
+6. NoteVaultが結果のログとレポートを生成する
 
-## F-005 Output Formats
-The system shall export notes in readable local formats.
+### 7.2 主要コンポーネント
 
-### Minimum Required Formats
+- バックアップ検出モジュール
+- バックアップアクセス層
+- ノートパーサー
+- メタデータ抽出器
+- 添付ファイル抽出器
+- エクスポートエンジン
+- ログ・レポートモジュール
+- UIレイヤー（CLIまたはGUI）
+
+---
+
+## 8. 機能要件
+
+## F-001 バックアップ検出
+システムはホストコンピュータ上の1つ以上のローカルiPhoneバックアップデータセットを検出しなければなりません。
+
+### 受け入れ基準
+- 利用可能なローカルバックアップを一覧表示できる
+- 複数のバックアップが存在する場合、ユーザーが1つを選択できる
+- 選択されたバックアップは処理前に検証される
+
+## F-002 ノートインベントリ
+システムは選択されたバックアップからノートを読み込んで列挙しなければなりません。
+
+### 受け入れ基準
+- ノートの総数を表示できる
+- タイトルまたはタイトルなしノートのフォールバックラベルを識別できる
+- 利用可能な場合、作成日時と更新日時を読み取れる
+- 利用可能な場合、フォルダまたはコレクションへの所属を識別できる
+
+## F-003 スコープ選択
+システムはユーザーがエクスポートスコープを選択できるようにしなければなりません。
+
+### 受け入れ基準
+- すべてのノートをエクスポートする
+- フォルダ別にエクスポートする
+- 日付範囲別にエクスポートする
+- 技術的に可能な場合、キーワード一致でエクスポートする
+
+## F-004 一括エクスポート
+システムはバッチモードでノートをエクスポートしなければなりません。
+
+### 受け入れ基準
+- 1回の実行フローで10,000件以上のノートを処理できる
+- チャンクまたは反復処理をサポートする
+- ノートごとの手動確認を必要としない
+
+## F-005 出力形式
+システムは可読なローカル形式でノートをエクスポートしなければなりません。
+
+### 最低限必要な形式
 - TXT
 - Markdown
 
-### Optional Formats
+### オプション形式
 - HTML
-- JSON metadata files
+- JSONメタデータファイル
 
-### Acceptance Criteria
-- At least one text-readable file is created per note
-- Output filenames are deterministic and safe for filesystem use
-- Duplicate note titles do not overwrite each other
+### 受け入れ基準
+- ノートごとに少なくとも1つのテキスト可読ファイルが作成される
+- 出力ファイル名は決定論的でファイルシステム上で安全である
+- タイトルが重複するノートは互いに上書きされない
 
-## F-006 Attachment Extraction
-The system shall attempt to export attachments when technically feasible.
+## F-006 添付ファイル抽出
+システムは技術的に可能な場合、添付ファイルのエクスポートを試みなければなりません。
 
-### Acceptance Criteria
-- Image attachments are stored as separate files when extractable
-- Notes can reference extracted attachments by relative path
-- If attachment extraction fails, note text export still succeeds
-- Export report records attachment extraction failures
+### 受け入れ基準
+- 抽出可能な場合、画像の添付ファイルは別ファイルとして保存される
+- ノートは相対パスで抽出された添付ファイルを参照できる
+- 添付ファイルの抽出が失敗しても、ノートのテキストエクスポートは成功する
+- エクスポートレポートに添付ファイル抽出の失敗が記録される
 
-## F-007 Folder Preservation
-The system shall preserve note grouping where possible.
+## F-007 フォルダ保持
+システムは可能な限りノートのグループ分けを保持しなければなりません。
 
-### Acceptance Criteria
-- Folder names are reflected in export directory structure when available
-- If folder metadata is missing, notes fall back to a default grouping
-- Export should remain valid even if folder reconstruction is incomplete
+### 受け入れ基準
+- 利用可能な場合、フォルダ名がエクスポートディレクトリ構造に反映される
+- フォルダメタデータがない場合、ノートはデフォルトのグループにフォールバックする
+- フォルダの再構築が不完全な場合でもエクスポートは有効であり続ける
 
-## F-008 Destination Selection
-The system shall allow export to a chosen local destination.
+## F-008 出力先選択
+システムはユーザーが出力先ローカルディレクトリを選択できるようにしなければなりません。
 
-### Acceptance Criteria
-- User can choose a local folder
-- User can choose external USB storage if mounted
-- Destination write permissions are validated before export starts
+### 受け入れ基準
+- ユーザーがローカルフォルダを選択できる
+- マウントされている場合、外付けUSBストレージを選択できる
+- エクスポート開始前に出力先の書き込み権限が検証される
 
-## F-009 Resume and Incremental Export
-The system should support resumable export.
+## F-009 再開・増分エクスポート
+システムは再開可能なエクスポートをサポートすべきです。
 
-### Acceptance Criteria
-- Interrupted export can be resumed without restarting from zero
-- Already exported notes can be skipped on re-run
-- Updated notes can be re-exported when change detection is available
+### 受け入れ基準
+- 中断されたエクスポートをゼロから再開せずに再開できる
+- 再実行時に既にエクスポートされたノートをスキップできる
+- 変更検出が利用可能な場合、更新されたノートを再エクスポートできる
 
-## F-010 Logging and Reporting
-The system shall generate execution logs and result reports.
+## F-010 ログとレポート
+システムは実行ログと結果レポートを生成しなければなりません。
 
-### Acceptance Criteria
-- Total processed count is recorded
-- Success count is recorded
-- Failure count is recorded
-- Skipped count is recorded
-- Failed note identifiers are recorded for troubleshooting
+### 受け入れ基準
+- 処理された総数が記録される
+- 成功数が記録される
+- 失敗数が記録される
+- スキップ数が記録される
+- トラブルシューティングのために失敗したノートの識別子が記録される
 
-## F-011 Read-Only Safety
-The system shall not modify original source data.
+## F-011 読み取り専用の安全性
+システムは元のソースデータを変更してはなりません。
 
-### Acceptance Criteria
-- Backup source is treated as read-only
-- No write operations target the original iPhone note store
-- Temporary files are created only in application-controlled locations
-
----
-
-## 9. Non-Functional Requirements
-
-## N-001 Offline Operation
-The system must function offline once the necessary local source data is available.
-
-### Acceptance Criteria
-- Main export flow runs without network access
-- The tool does not require iCloud
-- The tool does not upload note contents externally
-
-## N-002 Privacy
-The system must protect user privacy.
-
-### Acceptance Criteria
-- Note contents are not sent to external APIs by default
-- Logs must avoid storing full sensitive text unless debug mode is explicitly enabled
-- All processing happens locally
-
-## N-003 Performance
-The system should handle large note collections robustly.
-
-### Acceptance Criteria
-- 10,000+ notes can be processed without requiring manual per-item interaction
-- Memory usage should remain bounded by streaming or chunking where practical
-- Progress indication is available for long-running exports
-
-## N-004 Reliability
-The system should tolerate partial failures.
-
-### Acceptance Criteria
-- A single malformed note should not abort the entire run
-- Failures are isolated and recorded
-- Partial successful export remains usable
-
-## N-005 Portability
-The system should be designed with desktop portability in mind.
-
-### Acceptance Criteria
-- Windows is the primary target
-- macOS support is desirable
-- The core export engine should be separable from the UI layer
+### 受け入れ基準
+- バックアップソースは読み取り専用として扱われる
+- 元のiPhoneノートストアへの書き込み操作は行われない
+- 一時ファイルはアプリケーションが制御する場所にのみ作成される
 
 ---
 
-## 10. Data Model
+## 9. 非機能要件
 
-## 10.1 Exported Note Metadata
+## N-001 オフライン動作
+必要なローカルソースデータが利用可能になればシステムはオフラインで動作しなければなりません。
 
-Recommended logical fields:
+### 受け入れ基準
+- メインのエクスポートフローはネットワークアクセスなしで実行される
+- iCloudを必要としない
+- ノートの内容を外部にアップロードしない
 
-- note_id
-- source_backup_id
-- title
-- created_at
-- updated_at
-- folder_name
-- filename
-- attachment_count
-- export_status
-- export_error
+## N-002 プライバシー
+システムはユーザーのプライバシーを保護しなければなりません。
 
-## 10.2 Example Metadata JSON
+### 受け入れ基準
+- デフォルトではノートの内容を外部APIに送信しない
+- デバッグモードが明示的に有効な場合を除き、ログに完全なセンシティブなテキストを保存しない
+- すべての処理はローカルで行われる
+
+## N-003 パフォーマンス
+システムは大規模なノートコレクションを堅牢に処理すべきです。
+
+### 受け入れ基準
+- 手動のアイテムごとの操作なしに10,000件以上のノートを処理できる
+- 可能な場合、ストリーミングまたはチャンキングによってメモリ使用量を制限する
+- 長時間実行されるエクスポートの進捗表示が利用可能である
+
+## N-004 信頼性
+システムは部分的な失敗を許容すべきです。
+
+### 受け入れ基準
+- 1件の不正なノートで実行全体が中断されない
+- 失敗は分離されて記録される
+- 部分的に成功したエクスポートは引き続き使用可能である
+
+## N-005 ポータビリティ
+システムはデスクトップの移植性を考慮して設計すべきです。
+
+### 受け入れ基準
+- Windowsが主要ターゲットである
+- macOSサポートが望ましい
+- コアエクスポートエンジンはUIレイヤーから分離可能であるべきである
+
+---
+
+## 10. データモデル
+
+## 10.1 エクスポートされたノートのメタデータ
+
+推奨する論理フィールド：
+
+- note_id（ノートID）
+- source_backup_id（元バックアップID）
+- title（タイトル）
+- created_at（作成日時）
+- updated_at（更新日時）
+- folder_name（フォルダ名）
+- filename（ファイル名）
+- attachment_count（添付ファイル数）
+- export_status（エクスポートステータス）
+- export_error（エクスポートエラー）
+
+## 10.2 メタデータJSONの例
 
 ```json
 {
   "note_id": "local-000001",
   "source_backup_id": "backup-2026-03-16",
-  "title": "Shopping Memo",
+  "title": "買い物メモ",
   "created_at": "2024-01-10T12:34:56",
   "updated_at": "2026-03-01T18:20:00",
-  "folder_name": "Personal",
+  "folder_name": "個人",
   "filename": "000001_shopping-memo.md",
   "attachment_count": 2,
   "export_status": "success",
@@ -306,17 +306,17 @@ Recommended logical fields:
 
 ---
 
-## 11. Output Structure
+## 11. 出力構造
 
-Recommended output layout:
+推奨する出力レイアウト：
 
 ```text
 export_root/
   notes/
-    Personal/
+    個人/
       000001_shopping-memo.md
       000002_meeting-notes.md
-    Work/
+    仕事/
       000003_project-ideas.md
   attachments/
     000001/
@@ -329,201 +329,201 @@ export_root/
     summary.txt
 ```
 
-Requirements:
+要件：
 
-- Notes shall be readable without proprietary software
-- Attachments shall be stored outside the note body as ordinary files
-- Paths should remain relative and portable where possible
-
----
-
-## 12. UX Requirements
-
-## 12.1 Minimum UI
-
-The MVP shall provide at least:
-
-- Backup selection
-- Destination folder selection
-- Export scope selection
-- Start export action
-- Progress display
-- Final result summary
-
-## 12.2 Ideal Additions
-
-- Retry failed exports
-- Preview note counts before execution
-- Filter for notes with attachments only
-- Duplicate title handling preview
-- Incremental export toggle
+- ノートは独自のソフトウェアなしに可読でなければならない
+- 添付ファイルはノート本文の外に通常のファイルとして保存される
+- パスは可能な限り相対的でポータブルであるべきである
 
 ---
 
-## 13. Constraints and Technical Risks
+## 12. UX要件
 
-### 13.1 Constraints
+## 12.1 最低限のUI
 
-- Apple Notes internal structures may change across iOS versions
-- Direct filesystem-style access to Apple Notes on iPhone is not assumed
-- Local backup parsing may vary depending on backup encryption and format
-- Attachment extraction may be incomplete in some cases
+MVPでは少なくとも以下を提供しなければなりません：
 
-### 13.2 Risks
+- バックアップ選択
+- 出力先フォルダ選択
+- エクスポートスコープ選択
+- エクスポート開始操作
+- 進捗表示
+- 最終結果サマリー
 
-- Encrypted backups may require additional handling
-- Note schema differences may break parsers
-- Very large note sets may stress filesystem operations
-- Attachment references may be incomplete or difficult to reconstruct
+## 12.2 理想的な追加機能
 
-### 13.3 Mitigation Strategy
-
-- Prioritize text export over full-fidelity reconstruction
-- Separate parser logic from export logic
-- Implement strong logging
-- Allow partial success
-- Version parser behavior where needed
+- 失敗したエクスポートの再試行
+- 実行前のノート数プレビュー
+- 添付ファイル付きノートのみフィルタ
+- タイトル重複処理のプレビュー
+- 増分エクスポートの切り替え
 
 ---
 
-## 14. MVP Definition
+## 13. 制約と技術的リスク
+
+### 13.1 制約
+
+- Apple NotesのiOSバージョンによって内部構造が変わる可能性がある
+- iPhoneのApple Notesへのファイルシステムスタイルの直接アクセスは想定しない
+- バックアップの暗号化や形式によってローカルバックアップの解析が異なる場合がある
+- 場合によっては添付ファイルの抽出が不完全になる可能性がある
+
+### 13.2 リスク
+
+- 暗号化されたバックアップには追加の処理が必要になる可能性がある
+- ノートスキーマの違いによりパーサーが壊れる可能性がある
+- 非常に大規模なノートセットはファイルシステム操作に負荷をかける可能性がある
+- 添付ファイルの参照が不完全または再構築が困難な場合がある
+
+### 13.3 緩和策
+
+- 完全な忠実再現よりもテキストエクスポートを優先する
+- パーサーロジックをエクスポートロジックから分離する
+- 強固なロギングを実装する
+- 部分的な成功を許容する
+- 必要に応じてパーサーの動作をバージョン管理する
+
+---
+
+## 14. MVP定義
 
 ## MVP-1
-Required for first usable release:
+最初の使用可能なリリースに必要なもの：
 
-- Detect local backup
-- Enumerate notes
-- Export note text to Markdown or TXT
-- Save to user-selected local directory
-- Generate execution report
-- Operate fully offline
+- ローカルバックアップを検出する
+- ノートを列挙する
+- ノートのテキストをMarkdownまたはTXTにエクスポートする
+- ユーザーが選択したローカルディレクトリに保存する
+- 実行レポートを生成する
+- 完全にオフラインで動作する
 
 ## MVP-2
-Useful follow-up release:
+有用なフォローアップリリース：
 
-- Preserve folder structure
-- Resume interrupted exports
-- Incremental export
-- Metadata JSON output
+- フォルダ構造を保持する
+- 中断されたエクスポートを再開する
+- 増分エクスポート
+- メタデータJSON出力
 
 ## MVP-3
-Advanced release:
+高度なリリース：
 
-- Attachment extraction
-- Relative attachment linking in Markdown
-- ZIP packaging of export result
-- Optional GUI improvements
-
----
-
-## 15. Acceptance Test Scenarios
-
-## AT-001 Large Export
-Given a local backup containing more than 10,000 notes,
-when the user runs a full export,
-then the tool shall complete batch processing without requiring per-note interaction,
-and generate a result report.
-
-## AT-002 Offline Use
-Given a PC with no internet connection,
-when the user runs export from a prepared local backup,
-then the export shall succeed without network access.
-
-## AT-003 Privacy
-Given a normal export run,
-when logs are written,
-then note bodies shall not be fully written to logs unless explicit debug mode is enabled.
-
-## AT-004 Partial Failure Tolerance
-Given that some notes are malformed or unreadable,
-when export runs,
-then readable notes shall still be exported,
-and failed notes shall be listed in the report.
-
-## AT-005 Destination Validation
-Given a user-selected destination,
-when export starts,
-then the system shall verify write access before processing large volumes of notes.
+- 添付ファイルの抽出
+- Markdownでの相対的な添付ファイルリンク
+- エクスポート結果のZIPパッケージング
+- オプションのGUI改善
 
 ---
 
-## 16. Suggested Tech Stack
+## 15. 受け入れテストシナリオ
 
-This is not mandatory, but a practical recommendation:
+## AT-001 大規模エクスポート
+10,000件以上のノートを含むローカルバックアップがある場合、
+ユーザーが全エクスポートを実行すると、
+ツールはノートごとの操作なしにバッチ処理を完了し、
+結果レポートを生成しなければなりません。
 
-### Option A: Python CLI / Desktop
+## AT-002 オフライン使用
+インターネット接続のないPCにおいて、
+ユーザーが準備済みのローカルバックアップからエクスポートを実行すると、
+ネットワークアクセスなしにエクスポートが成功しなければなりません。
+
+## AT-003 プライバシー
+通常のエクスポート実行時に、
+ログが書き込まれる場合、
+明示的なデバッグモードが有効でない限りノート本文はログに完全には書き込まれてはなりません。
+
+## AT-004 部分的な失敗の許容
+一部のノートが不正またはアンリーダブルである場合、
+エクスポートが実行されると、
+可読なノートはエクスポートされ、
+失敗したノートはレポートに列挙されなければなりません。
+
+## AT-005 出力先の検証
+ユーザーが選択した出力先に対して、
+エクスポートが開始される場合、
+大量のノートを処理する前にシステムが書き込みアクセスを検証しなければなりません。
+
+---
+
+## 16. 推奨テックスタック
+
+必須ではありませんが、実用的な推奨です：
+
+### オプションA：Python CLI / デスクトップ
 - Python
-- SQLite parsing libraries where needed
+- 必要に応じてSQLite解析ライブラリ
 - pathlib
 - json
 - zipfile
-- typer or argparse for CLI
-- optional tkinter or PySide for GUI
+- CLI用 typer または argparse
+- オプションのGUI用 tkinter または PySide
 
-### Option B: Cross-Platform Desktop
-- Rust or Go for core engine
-- Tauri or Electron for GUI wrapper
+### オプションB：クロスプラットフォームデスクトップ
+- コアエンジンにRustまたはGo
+- GUIラッパーにTauriまたはElectron
 
-For fastest prototyping, Python is recommended.
-
----
-
-## 17. Open Questions
-
-The following items should be resolved before implementation starts:
-
-1. What exact local backup format(s) will be supported first?
-2. Will encrypted backups be supported in MVP-1 or deferred?
-3. Should the first release target Windows only?
-4. What filename strategy should be used for duplicate titles and unsupported characters?
-5. How should embedded rich text be normalized into Markdown?
-6. What level of attachment support is realistic for MVP-2?
-7. Should ZIP packaging be part of export itself or a post-process step?
+最速のプロトタイピングにはPythonを推奨します。
 
 ---
 
-## 18. Success Metrics
+## 17. 未解決の問題
 
-The project will be considered successful if:
+実装開始前に以下の項目を解決すべきです：
 
-- Users can export large Apple Notes collections locally
-- Users can avoid iCloud for backup/export
-- Exported notes remain readable in ordinary text editors
-- Failure cases are visible and recoverable
-- The tool is useful even when attachment extraction is incomplete
+1. 最初にサポートするローカルバックアップの正確な形式は何か？
+2. MVP-1で暗号化バックアップをサポートするか、それとも後回しにするか？
+3. 初回リリースはWindowsのみを対象とするか？
+4. タイトルの重複やサポートされない文字のファイル名戦略はどうするか？
+5. 埋め込みリッチテキストをMarkdownに正規化する方法は？
+6. MVP-2での添付ファイルサポートの現実的なレベルは？
+7. ZIPパッケージングはエクスポート自体の一部にするか、後処理にするか？
 
 ---
 
-## 19. Repository Naming
+## 18. 成功指標
 
-Recommended repository name:
+以下が達成できた場合にプロジェクトは成功とみなします：
+
+- ユーザーが大規模なApple Notesコレクションをローカルにエクスポートできる
+- ユーザーがバックアップ・エクスポートにiCloudを回避できる
+- エクスポートされたノートが一般的なテキストエディタで可読である
+- 失敗ケースが可視化されリカバリ可能である
+- 添付ファイルの抽出が不完全な場合でもツールが有用である
+
+---
+
+## 19. リポジトリ名
+
+推奨リポジトリ名：
 
 - NoteVault
 
-Suggested GitHub description:
+GitHubの推奨説明文：
 
 - A local-first tool to bulk export Apple Notes from iPhone to PC or USB, without using iCloud.
 
 ---
 
-## 20. Future Extensions
+## 20. 将来の拡張
 
-Possible future enhancements:
+将来的に考えられる機能拡張：
 
-- GUI-driven drag-and-drop workflow
-- Searchable archive generation
-- HTML index page for exported notes
-- Full-text local search
-- Deduplication support
-- Optional encrypted export package
-- Optional import into other note systems
+- GUIによるドラッグ＆ドロップワークフロー
+- 検索可能なアーカイブ生成
+- エクスポートされたノートのHTMLインデックスページ
+- ローカルの全文検索
+- 重複排除サポート
+- オプションの暗号化エクスポートパッケージ
+- 他のノートシステムへのオプションインポート
 
 ---
 
-## 21. Summary
+## 21. まとめ
 
-NoteVault is a practical offline-first bulk export utility for Apple Notes on iPhone.
-The first implementation should prioritize safe, read-only, text-preserving bulk export from local backups.
-Text rescue comes first. Full attachment handling comes next.
+NoteVaultはiPhoneのApple Notesのための実用的なオフラインファーストの一括エクスポートユーティリティです。
+最初の実装では、ローカルバックアップからの安全で読み取り専用かつテキスト保全を重視した一括エクスポートを優先すべきです。
+テキストの救出を最初に。添付ファイルの完全対応はその次。
 
-That order keeps the project useful early and avoids drowning in Apple-specific edge cases on day one.
+この順序によってプロジェクトを早期に実用化し、初日からApple固有のエッジケースに溺れることを回避できます。
